@@ -17,28 +17,28 @@ class Firewall
             end
 
             if port.length() > 1 
-                for i in port[0] .. port[1]
-                    if rules[rules_index][i].nil?
-                        rules[rules_index][i] = Hash.new
+                for i in port[0].to_i .. port[1].to_i
+                    if @rules[rules_index][i].nil?
+                        @rules[rules_index][i] = Hash.new
                     end
                     if ip_address.length() > 1
                         for j in ip_to_number(ip_address[0]) .. ip_to_number(ip_address[1])
-                            rules[rules_index][i][number_to_ip(j)] = true
+                            @rules[rules_index][i][number_to_ip(j)] = true
                         end
                     else
-                        rules[rules_index][i][number_to_ip(ip_address[0])] = true
+                        @rules[rules_index][i][ip_address[0]] = true
                     end
                 end
             else
-                if rules[rules_index][port[0]].nil?
-                    rules[rules_index][port[0]] = Hash.new
+                if @rules[rules_index][port[0].to_i].nil?
+                    @rules[rules_index][port[0].to_i] = Hash.new
                 end
                 if ip_address.length() > 1
                     for j in ip_to_number(ip_address[0]) .. ip_to_number(ip_address[1])
-                        rules[rules_index][port[0]][number_to_ip(j)] = true
+                        @rules[rules_index][port[0].to_i][number_to_ip(j)] = true
                     end
                 else
-                    rules[rules_index][port[0]][number_to_ip(ip_address[0])] = true
+                    @rules[rules_index][port[0].to_i][ip_address[0]] = true
                 end
             end
         end
@@ -47,33 +47,40 @@ class Firewall
 
 
     def accept_packet(direction, protocol, port, ip_address)
+        #choose array to check rule in
+        rules_index = 0
+        if direction === "inbound"
+            rules_index = 1 if protocol === "udp"
+        else
+            rules_index = protocol === "tcp" ? 2 : 3
+        end
+
+        if @rules[rules_index][port].nil? || @rules[rules_index][port][ip_address].nil?
+            false
+        else
+            true
+        end
     end
 
     def ip_to_number(ip_address)
-        chunks = ip_address.split('.')
-        number = chunks[0].to_s(2) << 24 + chunks[1].to_s(2) << 16 + chunks[2].to_s(2) << 8 + chunks[3].to_s(2)
-        number.to_i(2)
-    end
-
-    def number_to_ip(ip_number)
-
-    end
-end
-def ip_to_number(ip_address)
         chunks = ip_address.split('.').map(&:to_i)
         number = (chunks[0] << 24) + (chunks[1] << 16) + (chunks[2] << 8) + chunks[3]
-end
+    end
 
-def number_to_ip(number)
+    def number_to_ip(number)
         chunks = Array.new(4)
         chunks[3] = (255 & number).to_s
         chunks[2] = (((255 << 8) & number) >> 8).to_s
         chunks[1] = (((255 << 16) & number) >> 16).to_s
         chunks[0] = (number >> 24).to_s
         chunks.join(".")
+    end
 end
 
-puts ip_to_number("192.168.1.1")
-puts number_to_ip(ip_to_number("192.168.1.1"))
 
-#fw = Firewall.new("./fw.csv")
+fw = Firewall.new("./fw.csv")
+puts fw.accept_packet("inbound", "udp", 53, "192.168.2.1")
+puts fw.accept_packet("outbound", "tcp", 10234, "192.168.10.11")
+
+puts fw.accept_packet("inbound", "tcp", 81, "192.168.1.2")
+puts fw.accept_packet("inbound", "udp", 24, "52.12.48.92")
