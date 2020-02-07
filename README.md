@@ -3,7 +3,7 @@
 ## Testing
 I didn't have enough to test this implementation thoroughly, so I just used the provided test cases in addition to a few more of my own to see how fast it would be and if it could handle one edge case. 
 The edge case I tested was leading 0s in the IP address, which would cause problems since it is technically a correct IP (as far as I know). I handled this by converting the IP to a number and back to standardize the string format.
-The large test case I wrote which spans 20k ports and a few hundred IP addresses took a very very long time to load, so this is not a good firewall for very large individual rules. However, I think it can handle large numbers of rules without slowing down too much.
+The large test case I wrote which spans 20k ports and a few thousand IP addresses took a very very long time to load, so this is not a good firewall for very large individual rules. However, I think it can handle large numbers of rules without slowing down too much.
 
 ## Design Choices
 I chose to store the rules in an array of four arrays, one for each combination of direction and protocol. Each combination had an 65536 sized array so that each port can be looked up in O(1). 
