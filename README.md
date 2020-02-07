@@ -13,7 +13,7 @@ The startup time if there are large ranges in any rules will be very long, since
 I made this choice because I think the number of incoming and outgoing packets will be much higher than the number of times the csv is initially loaded, so this could be a tradeoff worth making.
 However, if that is not a desired tradeoff, the code can easily be tweaked to store IP ranges in a list or array for each port, which would dramatically reduce the startup time and memory utilization for large ranges in exchange for a slight increase in lookup time for each packet.
 
-If I had more time I would have thought more about dealing with the combination of large IP ranges and port ranges in the same rule, which my firewall doesn't handle very well right now.
+If I had more time I would have thought more about dealing with the combination of large IP ranges and port ranges in the same rule, which my firewall doesn't handle very well right now. I would also add special cases for all IPs and all Ports so that they wouldn't take so much time to load.
 
 
 # Illumio Team
