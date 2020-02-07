@@ -43,11 +43,10 @@ class Firewall
                     end
                 #single IP
                 else
-                    @rules[rules_index][port[0].to_i][ip_address[0]] = true
+                    @rules[rules_index][port[0].to_i][number_to_ip(ip_to_number(ip_address[0]))] = true
                 end
             end
         end
-
     end
 
 
@@ -60,8 +59,8 @@ class Firewall
             rules_index = protocol === "tcp" ? 2 : 3
         end
 
-        #check rule
-        if @rules[rules_index][port].nil? || @rules[rules_index][port][ip_address].nil?
+        #check rule, convert IP to number and back to handle weird cases like leading 0s
+        if @rules[rules_index][port].nil? || @rules[rules_index][port][number_to_ip(ip_to_number(ip_address))].nil?
             false
         else
             true
@@ -94,5 +93,9 @@ fw = Firewall.new("./fw.csv")
 #puts fw.accept_packet("inbound", "udp", 53, "192.168.2.1")
 #puts fw.accept_packet("outbound", "tcp", 10234, "192.168.10.11")
 #p fw.get_rules[2][10234]
+
 #puts fw.accept_packet("inbound", "tcp", 81, "192.168.1.2")
 #puts fw.accept_packet("inbound", "udp", 24, "52.12.48.92")
+#puts fw.accept_packet("inbound", "tcp", 22, "192.168.01.1")
+
+#too slow inbound,udp,12-29999,192.168.1.1-192.169.2.1
